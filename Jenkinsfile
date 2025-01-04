@@ -1,13 +1,13 @@
 pipeline {
     agent any
 
+    tools {go '1.23.4'}
+
     stages {
         stage('Test') {
             steps {
                 echo 'Testing go app...'
-                sh 'ls'
                 sh 'cd app'
-                sh 'ls'
                 sh 'go test ./test'
             }
         }
