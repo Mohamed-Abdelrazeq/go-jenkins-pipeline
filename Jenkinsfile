@@ -5,6 +5,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing go app...'
+                sh 'ls'
                 cd 'app'
                 sh 'go test ./test'
             }
