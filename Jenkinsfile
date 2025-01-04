@@ -7,6 +7,7 @@ pipeline {
                 echo 'Testing go app...'
                 sh 'ls'
                 cd 'app'
+                sh 'ls'
                 sh 'go test ./test'
             }
         }
