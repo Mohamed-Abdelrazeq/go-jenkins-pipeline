@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Mohamed-Abdelrazeq/go-pipeline-demo/src/handlers"
+	"github.com/Mohamed-Abdelrazeq/go-pipeline-demo/app/src/handlers"
 	"github.com/gofiber/fiber/v2"
 )
 
