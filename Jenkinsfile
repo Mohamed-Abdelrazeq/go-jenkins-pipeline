@@ -6,7 +6,7 @@ pipeline {
             steps {
                 echo 'Testing go app...'
                 sh 'ls'
-                cd 'app'
+                sh 'cd app'
                 sh 'ls'
                 sh 'go test ./test'
             }
