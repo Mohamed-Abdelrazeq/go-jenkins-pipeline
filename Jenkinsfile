@@ -7,8 +7,6 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Testing go app...'
-                sh 'go mod init github.com/Mohamed-Abdelrazeq/go-pipeline-demo'
-                sh 'go mod tidy'
                 sh 'go test ./app/test '
             }
         }
