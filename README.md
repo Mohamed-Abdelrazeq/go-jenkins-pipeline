@@ -11,8 +11,8 @@
 - ✅ Create EC2 instance
 - ✅ Setup Jenkins
 - ✅ Connect Jenkins to GitLab
-- 🚧 Create build script
-- 🚧 Create test script
+- ✅ Create test script
+- ✅ Create build script
 - 🚧 Create deploy script
 
 ## Development Steps
