@@ -6,19 +6,24 @@ pipeline {
     stages {
         stage('Unit Testing') {
             steps {
-                echo 'Testing go app...'
+                echo 'Testing...'
                 sh 'go test ./app/test '
             }
         }
         stage('Build') {
             steps {
-                echo 'Building go app...'
+                echo 'Building...'
                 sh 'docker build -t go-pipeline-demo .' 
             }
         }
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
+                withCredentials([usernamePassword(credentials: 'docker-hub-user', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
+                    sh 'docker tag go-pipeline-demo $USERNAME/go-pipeline-demo'
+                    sh 'docker push $USERNAME/go-pipeline-demo'
+                }
             }
         }
     }
