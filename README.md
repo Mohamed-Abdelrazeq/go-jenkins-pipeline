@@ -49,4 +49,7 @@
 - Create Jenkinsfile 
     - Add golang to tools
     - Choose the version you created
-- 
+- Run test in first stage
+- Install Docker Plugin
+- Create Dockerfile
+- Build app in second stage 

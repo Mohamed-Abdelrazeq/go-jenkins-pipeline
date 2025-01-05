@@ -10,7 +10,7 @@ COPY . /app
 RUN go mod tidy
 
 # Build the Go app
-RUN go build -o myapp .
+RUN go build -o myapp ./app/main.go
 
 # Make port 80 available to the world outside this container
 EXPOSE 3000
