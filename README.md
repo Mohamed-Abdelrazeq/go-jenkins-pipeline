@@ -71,7 +71,7 @@
 - User Data is used to install docker -> create jenkins container
 - trid t2.micro but it struggle with the jenkins load 
 - switching to t2.medium was saficiant but the cost is 3/4 times more 
-
+- test
 
 
 ```sh
