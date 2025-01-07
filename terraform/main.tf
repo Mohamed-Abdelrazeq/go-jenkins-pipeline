@@ -46,7 +46,7 @@ resource "aws_instance" "jenkins_server" {
     sudo yum install -y docker
     sudo service docker start
     sudo usermod -a -G docker ec2-user
-    sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+    sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts -v /var/run/docker.sock:/var/run/docker.sock
     EOF
 }
 
