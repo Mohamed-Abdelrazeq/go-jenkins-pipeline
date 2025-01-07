@@ -45,9 +45,12 @@ resource "aws_instance" "jenkins_server" {
     sudo yum update -y
     sudo yum install -y docker
     sudo service docker start
-    sudo usermod -a -G docker ec2-user
-    sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
-    sudo docker exec -u 0 jenkins /bin/sh -c "apt-get update && apt install docker.io -y && docker --version"
+    sudo groupadd docker
+    sudo usermod -aG docker ec2-user
+    su -s ec2-user
+    docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock jenkins/jenkins:lts
+    sudo chmod 666 /var/run/docker.sock
+    docker exec -u 0 jenkins /bin/sh -c "apt-get update && apt install docker.io -y && docker --version"
     EOF
 }
 
