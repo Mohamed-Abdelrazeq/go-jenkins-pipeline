@@ -32,7 +32,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_all" {
 
 resource "aws_instance" "jenkins_server" {
   ami             = "ami-07dc1ccdcec3b4eab"
-  instance_type   = "t2.micro"
+  instance_type   = "t2.medium"
   key_name        = "jenkins"
   security_groups = [aws_security_group.jenkins_sg.name]
 

@@ -68,6 +68,10 @@
 - Build app in the second stage 
 - Deploy the app by push to your repository in the last stage
 - Start working on Terraform to setup Jenkins server on EC2 and Deploy the app to another EC2
+- User Data is used to install docker -> create jenkins container
+- trid t2.micro but it struggle with the jenkins load 
+- switching to t2.medium was saficiant but the cost is 3/4 times more 
+
 
 
 ```sh
