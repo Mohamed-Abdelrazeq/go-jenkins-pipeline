@@ -8,12 +8,12 @@
 - Docker
 
 ## TODO List
-- ✅ Create EC2 instance
 - ✅ Setup Jenkins
 - ✅ Connect Jenkins to GitLab
 - ✅ Create test script
 - ✅ Create build script
-- 🚧 Create deploy script
+- ✅ Create deploy script
+-    Create Terraform for AWS to host Jenkins
 
 ## Development Steps
 - Create local Jenkins server on Docker container
@@ -64,5 +64,21 @@
   docker --version
   ```
 - Create Dockerfile
+- Add docker hub credintials to Jenkins
 - Build app in the second stage 
+- Deploy the app by push to your repository in the last stage
+- Start working on Terraform to setup Jenkins server on EC2 and Deploy the app to another EC2
 
+
+```sh
+cat /var/log/cloud-init-output.log
+```
+
+```sh
+#!/bin/bash
+sudo yum update -y
+sudo yum install -y docker
+sudo service docker start
+sudo usermod -a -G docker ec2-user
+sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+```
