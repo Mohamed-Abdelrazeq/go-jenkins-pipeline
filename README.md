@@ -14,6 +14,10 @@
 - ✅ Create build script
 - ✅ Create deploy script
 - ✅ Create Terraform for AWS to host Jenkins
+-    Make docker image run on every boot 
+-    Isolate the jenkins in EBS
+-    Add ECS to Terraform to host the app on
+-    Adjust the Jenkins file to deploy to ECS
 
 ## Development Steps
 1. **Create local Jenkins server on Docker container**
@@ -92,3 +96,7 @@
     sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
     sudo docker exec -u 0 jenkins /bin/sh -c "apt-get update && apt install docker.io -y && docker --version"
     ```
+
+
+
+    
