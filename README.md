@@ -1,93 +1,102 @@
-# pipeline-demo
+# Go Pipeline Demo
+
+## Technologies Used
+- Jenkins
+- Golang
+- AWS
+- Terraform
+- Docker
+
+## TODO List
+- ✅ Setup Jenkins
+- ✅ Connect Jenkins to GitLab
+- ✅ Create test script
+- ✅ Create build script
+- ✅ Create deploy script
+- ✅ Create Terraform for AWS to host Jenkins
+-    Make docker image run on every boot 
+-    Isolate the jenkins in EBS
+-    Add ECS to Terraform to host the app on
+-    Adjust the Jenkins file to deploy to ECS
+
+## Development Steps
+1. **Create local Jenkins server on Docker container**
+  - Create a `docker-compose.yml` file:
+    ```yaml
+    version: '3.8'
+
+    services:
+     jenkins:
+      build: .
+      container_name: jenkins
+      ports:
+        - "8080:8080"
+        - "50000:50000"
+      volumes:
+        - jenkins_home:/var/jenkins_home
+        - /var/run/docker.sock:/var/run/docker.sock
+
+    volumes:
+     jenkins_home:
+    ```
+  - Run:
+    ```sh
+    docker compose up
+    ```
+
+2. **Install GitLab Plugin**
+  - Configure GitLab in Jenkins to read from the repository.
+  - Create access token/User and Password credentials.
+
+3. **Install Golang Plugin**
+  - Add Golang version in Jenkins.
+
+4. **Create Jenkinsfile**
+  - Add Golang to tools.
+  - Choose the version you created.
+  - Run test in the first stage.
+
+5. **Install Docker on the Jenkins server**
+  - Access root user using:
+    ```sh
+    docker exec -u 0 -it 45833 bash
+    ```
+  - Notice we created a volume to let Jenkins access `docker.sock` on the host device.
+  - Run:
+    ```sh
+    apt-get update 
+    apt install docker.io -y
+    docker --version
+    ```
+
+6. **Create Dockerfile**
+
+7. **Add Docker Hub credentials to Jenkins**
+
+8. **Build app in the second stage**
+
+9. **Deploy the app by pushing to your repository in the last stage**
+
+10. **Start working on Terraform to setup Jenkins server on EC2 and deploy the app to another EC2**
+   - User Data is used to install Docker and create Jenkins container.
+   - Tried t2.micro but it struggled with the Jenkins load.
+   - Switching to t2.medium was sufficient but the cost is 3/4 times more.
+   - Test:
+    ```sh
+    cat /var/log/cloud-init-output.log
+    ```
+
+   - User Data script:
+    ```sh
+    #!/bin/bash
+    sudo yum update -y
+    sudo yum install -y docker
+    sudo service docker start
+    sudo usermod -a -G docker ec2-user
+    sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
+    sudo docker exec -u 0 jenkins /bin/sh -c "apt-get update && apt install docker.io -y && docker --version"
+    ```
 
 
 
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/mohamedabdelrazek824/pipeline-demo.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/mohamedabdelrazek824/pipeline-demo/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+    
