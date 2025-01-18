@@ -97,6 +97,9 @@
     sudo docker exec -u 0 jenkins /bin/sh -c "apt-get update && apt install docker.io -y && docker --version"
     ```
 
+11. **Always restart jenkins contaienr && auto start docker daemon**
+  - Adjust -> docker run --restart=always -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock jenkins/jenkins:lts
+  - Add -> systemctl enable /usr/lib/systemd/system/docker.service
 
 
     
