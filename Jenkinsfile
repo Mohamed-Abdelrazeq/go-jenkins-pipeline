@@ -14,15 +14,19 @@ pipeline {
             steps {
                 echo 'Building...'
                 sh 'docker build -t go-pipeline-demo .' 
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-user', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
+                sh 'docker tag go-pipeline-demo $USERNAME/go-pipeline-demo'
+                sh 'docker push $USERNAME/go-pipeline-demo'
+                }
             }
         }
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-user', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-                    sh 'docker tag go-pipeline-demo $USERNAME/go-pipeline-demo'
-                    sh 'docker push $USERNAME/go-pipeline-demo'
+                def dockerCmd = "docker run -p 3080:3080 -d ${IMAGE_NAME}"
+                sshagent(['ec2-server-key']) {
+                    sh "ssh -o StrictHostKeyChecking=no ec2-user@51.44.136.60 ${dockerCmd}"
                 }
             }
         }
