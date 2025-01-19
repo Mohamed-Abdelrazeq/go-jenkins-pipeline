@@ -24,7 +24,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying...'
-                def dockerCmd = "docker run -p 3080:3080 -d ${IMAGE_NAME}"
+                def dockerCmd = "docker run -p 3000:3000 -d balagra/go-pipeline-demo"
                 sshagent(['ec2-server-key']) {
                     sh "ssh -o StrictHostKeyChecking=no ec2-user@51.44.136.60 ${dockerCmd}"
                 }

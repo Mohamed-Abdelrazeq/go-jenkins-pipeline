@@ -103,3 +103,11 @@
 
 
     
+
+- Gitlab username/password
+- Gitlab token access
+- Docker username/password (docker-hub-user)
+- plugin ssh-agent 
+- plugin go (1.23.4)
+- new pipeline
+- Gitlab enable integration
