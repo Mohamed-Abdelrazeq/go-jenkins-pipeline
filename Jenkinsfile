@@ -25,7 +25,7 @@ pipeline {
             steps {
                 echo 'Deploying...'
                 sshagent(['ec2-server-key']) {
-                    sh "ssh -o StrictHostKeyChecking=no ec2-user@51.44.136.60 docker run -p 3000:3000 -d balagra/go-pipeline-demo"
+                    sh "ssh -o StrictHostKeyChecking=no ec2-user@13.39.143.225 docker run -p 3000:3000 -d balagra/go-pipeline-demo"
                 }
             }
         }
