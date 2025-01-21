@@ -20,19 +20,19 @@ The Jenkins pipeline is designed to automate the following steps:
 5. **Dockerize**: Builds a Docker image for the application.
 6. **Push to Docker Hub**: Pushes the Docker image to Docker Hub.
 7. **SSH to Deployment Server**: Connect to the deployment server via SSH and run the Dockerized application.
-8. **Deploy**: Deploys the Docker container to AWS ECS.
+8. **Deploy**: Deploys the Docker container to AWS EC2.
 
 ## Terraform Infrastructure
 Terraform is used to provision the following AWS resources:
 - **VPC**: A Virtual Private Cloud to host the infrastructure.
 - **Security Groups**: Define firewall rules to control inbound and outbound traffic to the instances.
-- **EC2 Instances**: Instances to run the Jenkins server and ECS tasks.
+- **EC2 Instances**: Instances to run the Jenkins server and EC2 tasks.
 - **IAM Roles**: Roles and policies to manage permissions for AWS services.
 
 ## AWS Services Used
 - **ECS (Elastic Container Service)**: Manages Docker containers.
 - **ECR (Elastic Container Registry)**: Stores Docker images.
-- **EC2 (Elastic Compute Cloud)**: Hosts Jenkins and ECS tasks.
+- **EC2 (Elastic Compute Cloud)**: Hosts Jenkins and EC2 tasks.
 - **VPC (Virtual Private Cloud)**: Isolates the network environment.
 - **IAM (Identity and Access Management)**: Manages permissions and roles.
 - **EIP (Elastic IP)**: Allocates a static IP address for the Jenkins server.
@@ -138,4 +138,4 @@ resource "aws_instance" "jenkins_server" {
 - ✅ Create build script
 - ✅ Create deploy script
 - ✅ Create Terraform for AWS to host Jenkins
-- ✅ Adjust the Jenkins file to deploy to ECS
+- ✅ Adjust the Jenkins file to deploy to EC2
