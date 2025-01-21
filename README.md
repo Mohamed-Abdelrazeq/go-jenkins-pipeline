@@ -1,25 +1,44 @@
 # Go Pipeline Demo
 
+## Overview
+This project demonstrates a CI/CD pipeline using Jenkins, Golang, Docker, and AWS. The pipeline automates the process of testing, building, and deploying a Go application. Infrastructure provisioning is managed using Terraform.
+
 ## Technologies Used
 - Jenkins
 - Golang
 - AWS
 - Terraform
 - Docker
+- Bash
 
-## TODO List
-- ✅ Setup Jenkins
-- ✅ Connect Jenkins to GitLab
-- ✅ Create test script
-- ✅ Create build script
-- ✅ Create deploy script
-- ✅ Create Terraform for AWS to host Jenkins
--    Make docker image run on every boot 
--    Isolate the jenkins in EBS
--    Add ECS to Terraform to host the app on
--    Adjust the Jenkins file to deploy to ECS
+## Pipeline Overview
+The Jenkins pipeline is designed to automate the following steps:
+1. **GitLab**: GitLab notifies Jenkins that new code has been merged to the master branch.
+2. **Checkout Code**: Jenkins pulls the latest code from the GitLab repository.
+3. **Test**: Runs unit tests to ensure code quality.
+4. **Build**: Compiles the Go application.
+5. **Dockerize**: Builds a Docker image for the application.
+6. **Push to Docker Hub**: Pushes the Docker image to Docker Hub.
+7. **SSH to Deployment Server**: Connect to the deployment server via SSH and run the Dockerized application.
+8. **Deploy**: Deploys the Docker container to AWS ECS.
 
-## Development Steps
+## Terraform Infrastructure
+Terraform is used to provision the following AWS resources:
+- **VPC**: A Virtual Private Cloud to host the infrastructure.
+- **Security Groups**: Define firewall rules to control inbound and outbound traffic to the instances.
+- **EC2 Instances**: Instances to run the Jenkins server and ECS tasks.
+- **IAM Roles**: Roles and policies to manage permissions for AWS services.
+
+## AWS Services Used
+- **ECS (Elastic Container Service)**: Manages Docker containers.
+- **ECR (Elastic Container Registry)**: Stores Docker images.
+- **EC2 (Elastic Compute Cloud)**: Hosts Jenkins and ECS tasks.
+- **VPC (Virtual Private Cloud)**: Isolates the network environment.
+- **IAM (Identity and Access Management)**: Manages permissions and roles.
+- **EIP (Elastic IP)**: Allocates a static IP address for the Jenkins server.
+
+
+## My Development Steps
 1. **Create local Jenkins server on Docker container**
   - Create a `docker-compose.yml` file:
     ```yaml
@@ -39,64 +58,83 @@
     volumes:
      jenkins_home:
     ```
-  - Run:
-    ```sh
-    docker compose up
-    ```
 
-2. **Install GitLab Plugin**
-  - Configure GitLab in Jenkins to read from the repository.
-  - Create access token/User and Password credentials.
+2. **Connect Jenkins to GitLab**
+  - Configure Jenkins to pull code from the GitLab repository.
 
-3. **Install Golang Plugin**
-  - Add Golang version in Jenkins.
+3. **Create test script**
+    - Write a script to run Go unit tests:
+        ```bash
+        #!/bin/bash
+        echo "Running Go unit tests..."
+        go test ./... -v
+        ```
 
-4. **Create Jenkinsfile**
-  - Add Golang to tools.
-  - Choose the version you created.
-  - Run test in the first stage.
+4. **Create build script**
+    - Write a script to compile the Go application:
+        ```bash
+        #!/bin/bash
+        echo "Building Go application..."
+        go build -o app .
+        ```
 
-5. **Install Docker on the Jenkins server**
-  - Access root user using:
-    ```sh
-    docker exec -u 0 -it 45833 bash
-    ```
-  - Notice we created a volume to let Jenkins access `docker.sock` on the host device.
-  - Run:
-    ```sh
-    apt-get update 
-    apt install docker.io -y
-    docker --version
-    ```
+5. **Create deploy script**
+    - Write a script to deploy the Docker container to AWS EC2:
+        ```bash
+        #!/bin/bash
+        echo "Deploying Docker container to AWS EC2..."
+        docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        docker build -t $DOCKER_IMAGE_NAME .
+        docker tag $DOCKER_IMAGE_NAME $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest
+        docker push $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest
 
-6. **Create Dockerfile**
+        ssh -i $EC2_KEY_PAIR $EC2_USER@$EC2_HOST << 'EOF'
+        docker pull $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest
+        docker stop app || true
+        docker rm app || true
+        docker run -d --name app -p 80:80 $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest
+        EOF
+        ```
 
-7. **Add Docker Hub credentials to Jenkins**
+6. **Create Terraform for AWS to host Jenkins**
+    - Write Terraform configuration files to provision AWS resources:
+        - **VPC**: Define a Virtual Private Cloud to host the Jenkins server.
+        - **Subnets**: Create public and private subnets within the VPC.
+        - **Security Groups**: Set up security groups to allow necessary traffic to the Jenkins server.
+        - **EC2 Instance**: Provision an EC2 instance to run the Jenkins server.
+        - **IAM Roles**: Create IAM roles and policies to grant the Jenkins server necessary permissions.
+        - **EIP**: Allocate an Elastic IP for the Jenkins server to ensure a static IP address.
 
-8. **Build app in the second stage**
+7. **Adjust the Jenkins file to deploy to ECS**
+```hcl
+# Ensure Docker is installed on the first boot using user data
+resource "aws_instance" "jenkins_server" {
+    ami           = "ami-0c55b159cbfafe1f0" # Example AMI ID
+    instance_type = "t2.micro"
+    key_name      = var.ec2_key_pair
 
-9. **Deploy the app by pushing to your repository in the last stage**
+    user_data = <<-EOF
+                            #!/bin/bash
+                            sudo yum update -y
+                            sudo amazon-linux-extras install docker -y
+                            sudo service docker start
+                            sudo usermod -a -G docker ec2-user
+                            EOF
 
-10. **Start working on Terraform to setup Jenkins server on EC2 and deploy the app to another EC2**
-   - User Data is used to install Docker and create Jenkins container.
-   - Tried t2.micro but it struggled with the Jenkins load.
-   - Switching to t2.medium was sufficient but the cost is 3/4 times more.
-   - Test:
-    ```sh
-    cat /var/log/cloud-init-output.log
-    ```
+    tags = {
+        Name = "JenkinsServer"
+    }
+}
+```
+- **SSH to Deployment EC2 Instance**: Connect to the EC2 instance designated for deployment.
+- **Pull New Image**: Retrieve the latest Docker image from Docker Hub.
+- **Run Docker Container**: Start the Docker container on the specified ports.
 
-   - User Data script:
-    ```sh
-    #!/bin/bash
-    sudo yum update -y
-    sudo yum install -y docker
-    sudo service docker start
-    sudo usermod -a -G docker ec2-user
-    sudo docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home jenkins/jenkins:lts
-    sudo docker exec -u 0 jenkins /bin/sh -c "apt-get update && apt install docker.io -y && docker --version"
-    ```
-
-
-
-    
+## TODO List
+- ✅ Setup Jenkins
+- ✅ Connect Jenkins to GitLab
+- ✅ Create test script
+- ✅ Create build script
+- ✅ Create deploy script
+- ✅ Create Terraform for AWS to host Jenkins
+- ✅ Adjust the Jenkins file to deploy to ECS
