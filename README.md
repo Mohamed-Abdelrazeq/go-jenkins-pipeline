@@ -105,7 +105,8 @@ Terraform is used to provision the following AWS resources:
         - **IAM Roles**: Create IAM roles and policies to grant the Jenkins server necessary permissions.
         - **EIP**: Allocate an Elastic IP for the Jenkins server to ensure a static IP address.
 
-7. **Adjust the Jenkins file to deploy to ECS**
+7. **Adjust the Jenkins file to deploy to EC2**
+- **Install docker on the first boot**
 ```hcl
 # Ensure Docker is installed on the first boot using user data
 resource "aws_instance" "jenkins_server" {
